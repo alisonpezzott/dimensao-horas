@@ -28,7 +28,7 @@ let
                 zws = Character.FromNumber(8203) // Caracter especial para ordenação
             in {
                 _, // Indice
-                Number.From(#time(hora, minuto, segundo)) * 24, //HorarioDecimal
+                _/3600, //HorarioDecimal
                 #time(hora, minuto, segundo), // Horario
                 #time(hora, 0, 0), // InicioHora
                 #time(hora, minuto, 0), // InicioMinuto
