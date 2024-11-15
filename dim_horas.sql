@@ -3,7 +3,7 @@ DROP TABLE IF EXISTS dim_horas;
 -- Nomes e tipos das colunas
 CREATE TABLE dim_horas (
     Indice INT,
-    HorarioDecimal DECIMAL(10, 2),
+    HorarioDecimal DECIMAL(18, 8),
     Horario TIME,
     InicioHora TIME,
     InicioMinuto TIME,
@@ -30,7 +30,7 @@ CROSS JOIN sys.all_objects b;
 WITH tb_primaria AS (
     SELECT
         Indice,
-        CAST(Indice / 3600.0 AS DECIMAL(10, 2)) AS HorarioDecimal,
+        CAST(Indice / 3600.0 AS DECIMAL(18, 8)) AS HorarioDecimal,
         DATEADD(SECOND, Indice, CAST('00:00:00' AS TIME)) AS Horario
     FROM #temp
 ),
