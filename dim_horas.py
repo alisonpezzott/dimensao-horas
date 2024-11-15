@@ -3,9 +3,6 @@ from pyspark.sql.types import StructType, StructField, IntegerType, DoubleType, 
 from pyspark.sql.functions import udf, col
 from datetime import datetime, timedelta
 
-# Inicializa a sessão Spark
-spark = SparkSession.builder.appName("CreateTimeTable").getOrCreate()
-
 # Define a função para gerar os registros de tempo
 def generate_time_records():
     records = []
@@ -16,9 +13,11 @@ def generate_time_records():
         minutes = (time_delta.seconds // 60) % 60
         seconds = time_delta.seconds % 60
         time_str = (datetime.min + time_delta).time().strftime("%H:%M:%S")
+        inicio_hora = f"{hours:02d}:00:00"
+        inicio_minuto = f"{hours:02d}:{minutes:02d}:00"
         period = "Madrugada" if hours < 6 else "Manhã" if hours < 12 else "Tarde" if hours < 18 else "Noite"
         post_meridiem = "AM" if hours < 12 else "PM"
-        records.append((i, total_seconds / 3600, time_str, time_str[:5] + ":00", time_str[:3] + "00:00", hours, minutes, seconds, period, post_meridiem))
+        records.append((i, round(total_seconds / 3600, 6), time_str, inicio_hora, inicio_minuto, hours, minutes, seconds, period, post_meridiem))
     return records
 
 # Gera os registros
@@ -67,15 +66,9 @@ get_turno_udf = udf(get_turno, StringType())
 df = df.withColumn("Turno", get_turno_udf(col("Horario")))
 
 # Salva o DataFrame como uma tabela no Lakehouse
-df.write.format("delta").mode("overwrite").save("Tables/dim_hora")
+df.write.format("delta").mode("overwrite").save("Tables/dim_horas")
 
 # Mostra a tabela carregada
-df.show()
-
-# Finalizar a sessão Spark
-spark.stop()
-
-# Fim do arquivo dim_horas.py
-# Elaborado por Alison Pezzott
-# Data: 15/11/2024
+df = spark.sql("SELECT * FROM lake_demo.dim_horas ORDER BY Indice")
+display(df)
 
