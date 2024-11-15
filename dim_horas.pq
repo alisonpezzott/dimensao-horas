@@ -48,7 +48,7 @@ let
         )
     ),
 
-    // Definição dos turnos, horários iniciais e finais
+    // Definição dos turnos
     turnos = Table.FromRows(
         List.Zip({
             { "Turno 1"        , "Turno 2"        , "Turno 3"         }, // Tag dos turnos
@@ -58,22 +58,24 @@ let
         {"Turno", "HorarioInicial", "HorarioFinal"}
     ),
     
-    // Turno especial quando o horário final é menor que o inicial 
-    turnoEspecial = Table.SelectRows(turnos, each [HorarioFinal] < [HorarioInicial])[Turno]{0},
-    
     // Adiciona o turno a tabela horarios
-    turnoAdicionado = Table.AddColumn(
+    turno_add = Table.AddColumn(
         horarios, 
         "Turno", 
         (h) => 
-            try 
-                Table.SelectRows(
-                    turnoEspecial, 
-                    (t) => h[Horario] >= t[HorarioInicial] and h[Horario] <= t[HorarioFinal])[Turno]{0} 
-            otherwise 
-                turnoEspecial, 
-        type text
-    )
 
+        try Table.SelectRows(
+            turnos, 
+            (t) => h[Horario] >= t[HorarioInicial] and h[Horario] <= t[HorarioFinal]
+        )[Turno]{0}
+
+        otherwise Table.SelectRows(
+            turnos, 
+            (t) => t[HorarioInicial] > t[HorarioFinal]
+        )[Turno]{0},
+        
+        type text
+    ) 
+    
 in
-    turnoAdicionado
+    turno_add
