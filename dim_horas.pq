@@ -1,7 +1,6 @@
 let
 
-    // Cria a tabela horarios
-    horarios = #table(
+    dim_horas = #table(
 
         // Nomes e tipos de colunas   
         type table[   
@@ -14,68 +13,51 @@ let
             Minuto = Int64.Type,
             Segundo = Int64.Type,
             Periodo = text,
-            PostMeridiem = text
+            PostMeridiem = text,
+            Turno = text
         ],
         
         // Conteúdo dos dados
         List.Transform(
-            {0..86399},  //Indice geral em lista
-            each  let 
-                horarioRecord = Duration.ToRecord(#duration(0, 0, 0, _)),  // Horário em record
+            // 86400 segundos em um dia
+            {0..86399},
+
+            // Variáveis para reutilização
+            (i) =>  let 
+                horarioRecord = Duration.ToRecord(#duration(0, 0, 0, i)),  // Horário em record
                 hora = horarioRecord[Hours], 
                 minuto = horarioRecord[Minutes],
                 segundo = horarioRecord[Seconds],
+                horario = #time(hora, minuto, segundo),
                 zws = Character.FromNumber(8203) // Caracter especial para ordenação
-            in {
-                _, // Indice
-                _/3600, //HorarioDecimal
-                #time(hora, minuto, segundo), // Horario
-                #time(hora, 0, 0), // InicioHora
-                #time(hora, minuto, 0), // InicioMinuto
+            in 
+            
+            // Saída dos dados
+            {
+                i, 
+                i/3600, 
+                horario, 
+                #time(hora, 0, 0), 
+                #time(hora, minuto, 0),
                 hora,
                 minuto,
                 segundo,
                 
                 // Periodo
-                if hora < 6 then Text.Repeat(zws, 3) & "Madrugada" 
-                    else if hora < 12 then Text.Repeat(zws, 2) & "Manhã" 
-                    else if hora < 18 then Text.Repeat(zws, 1) &  "Tarde" 
-                    else "Noite", 
+                if hora < 6 then Text.Repeat(zws, 3) & "Madrugada" else 
+                if hora < 12 then Text.Repeat(zws, 2) & "Manhã" else 
+                if hora < 18 then Text.Repeat(zws, 1) &  "Tarde" else "Noite", 
                 
-                if hora < 12 then "AM" else "PM" // PostMeridiem
+                // PostMeridiem,
+                if hora < 12 then "AM" else "PM", 
+
+                // Turno
+                if horario >= #time(05, 00, 00) and horario <= #time(13, 29, 59) then "Turno 1" else
+                if horario >= #time(13, 30, 00) and horario <= #time(21, 59, 59) then "Turno 2" else
+                if horario >= #time(22, 00, 00) or  horario <= #time(04, 59, 59) then "Turno 3" else null
                 
             }
         )
-    ),
-
-    // Definição dos turnos
-    turnos = Table.FromRows(
-        List.Zip({
-            { "Turno 1"        , "Turno 2"        , "Turno 3"         }, // Tag dos turnos
-            { #time(05, 00, 00), #time(13, 30, 00), #time(22, 00, 00) }, // Horário inicial
-            { #time(13, 29, 59), #time(21, 59, 59), #time(04, 59, 59) }  // Horário final
-        }), 
-        {"Turno", "HorarioInicial", "HorarioFinal"}
-    ),
-    
-    // Adiciona o turno a tabela horarios
-    turno_add = Table.AddColumn(
-        horarios, 
-        "Turno", 
-        (h) => 
-
-        try Table.SelectRows(
-            turnos, 
-            (t) => h[Horario] >= t[HorarioInicial] and h[Horario] <= t[HorarioFinal]
-        )[Turno]{0}
-
-        otherwise Table.SelectRows(
-            turnos, 
-            (t) => t[HorarioInicial] > t[HorarioFinal]
-        )[Turno]{0},
-        
-        type text
-    ) 
-    
+    )
 in
-    turno_add
+    dim_horas
