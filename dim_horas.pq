@@ -44,9 +44,9 @@ let
                 segundo,
                 
                 // Periodo
-                if hora < 6 then Text.Repeat(zws, 3) & "Madrugada" else 
-                if hora < 12 then Text.Repeat(zws, 2) & "Manhã" else 
-                if hora < 18 then Text.Repeat(zws, 1) &  "Tarde" else "Noite", 
+                if hora < 6  then Text.Repeat(zws, 3) & "Madrugada" else 
+                if hora < 12 then Text.Repeat(zws, 2) & "Manhã"     else 
+                if hora < 18 then Text.Repeat(zws, 1) &  "Tarde"    else "Noite", 
                 
                 // PostMeridiem,
                 if hora < 12 then "AM" else "PM", 
