@@ -4,7 +4,8 @@ let
     datas = List.Generate(
         () => [Data = data_inicial],
         each [Data] <= data_final,
-        each [Data = Date.AddDays([Data], 1)]
+        each [Data = Date.AddDays([Data], 1)],
+        each [Data]
     ),
     calendario = #table(
         type table[
