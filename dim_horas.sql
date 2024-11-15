@@ -72,7 +72,7 @@ tabela_completa AS (
     FROM tb_primaria
 )
 
--- Inserindo os dados da CTE na tabela dim_horas
+-- Insere dados da segunda CTE na dim_horas
 INSERT INTO dim_horas
 SELECT * FROM tabela_completa
 ORDER BY Indice;
