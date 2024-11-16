@@ -1,1 +1,4 @@
 *.csv
+*.py
+*.sql
+dim_calendario.pq

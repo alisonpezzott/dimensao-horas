@@ -5,15 +5,14 @@ let
         // Nomes e tipos das colunas   
         type table[   
             Indice = Int64.Type,
-            HorarioDecimal = number,
-            Horario = time,
-            InicioHora = time,
-            InicioMinuto = time,
+            Horario24 = time,
+            Horario12 = text,
+            HoraInicio = time,
+            MinutoInicio = time,
             Hora = Int64.Type,
             Minuto = Int64.Type,
             Segundo = Int64.Type,
             Periodo = text,
-            PostMeridiem = text,
             Turno = text
         ],
         
@@ -35,8 +34,8 @@ let
             // Saída dos dados
             {
                 i, 
-                Number.RoundDown(i/3600, 6),
                 horario, 
+                Time.ToText(horario, [Format = "hh:mm:ss tt", Culture = "en-US"]),
                 #time(hora, 0, 0), 
                 #time(hora, minuto, 0),
                 hora,
@@ -48,13 +47,10 @@ let
                 if hora < 12 then Text.Repeat(zws, 2) & "Manhã"     else 
                 if hora < 18 then Text.Repeat(zws, 1) & "Tarde"     else "Noite", 
                 
-                // PostMeridiem,
-                if hora < 12 then "AM" else "PM", 
-
                 // Turno
-                if horario >= #time(05, 00, 00) and horario <= #time(13, 29, 59) then "Turno 1" else
-                if horario >= #time(13, 30, 00) and horario <= #time(21, 59, 59) then "Turno 2" else
-                if horario >= #time(22, 00, 00) or  horario <= #time(04, 59, 59) then "Turno 3" else null
+                if horario >= #time(05, 00, 00) and horario <= #time(13, 29, 59) then "T1" else
+                if horario >= #time(13, 30, 00) and horario <= #time(21, 59, 59) then "T2" else
+                if horario >= #time(22, 00, 00) or  horario <= #time(04, 59, 59) then "T3" else null
                 
             }
         )
