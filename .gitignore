@@ -3,3 +3,5 @@
 *.sql
 *.pbix
 dim_calendario.pq
+removed/
+data/
